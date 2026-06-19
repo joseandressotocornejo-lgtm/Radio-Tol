@@ -15,41 +15,28 @@ const stations = [
 ];
 
 let currentIdx = 0;
-let tempIdx = 0;
 
 let isHolding = false;
 let holdTimer = null;
+let intervalTimer = null;
 
 let tapCount = 0;
 let lastTapTime = 0;
 
+let startX = 0;
 let startY = 0;
+let currentDirection = null; // "right", "left", "down"
 let hideTimeout = null;
 
 const audio = document.getElementById("radio-audio");
-const staticSfx = document.getElementById("static-sfx");
 const menuSfx = document.getElementById("menu-sfx");
 
 const stationLogo = document.getElementById("station-logo");
 const stationName = document.getElementById("station-name");
 
-const prevLeftLogo = document.getElementById("prev-left-logo");
-const prevLeftName = document.getElementById("prev-left-name");
-
-const prevCenterLogo = document.getElementById("prev-center-logo");
-const prevCenterName = document.getElementById("prev-center-name");
-
-const prevRightLogo = document.getElementById("prev-right-logo");
-const prevRightName = document.getElementById("prev-right-name");
-
 function playMenuSfx() {
     menuSfx.currentTime = 0;
     menuSfx.play().catch(() => {});
-}
-
-function playStatic() {
-    staticSfx.currentTime = 0;
-    staticSfx.play().catch(() => {});
 }
 
 function getStation(index) {
@@ -58,42 +45,23 @@ function getStation(index) {
 }
 
 function updateUI(index = currentIdx) {
-
     const current = getStation(index);
-
-    const left = getStation(index - 1);
-    const center = getStation(index - 2);
-    const right = getStation(index + 1);
 
     stationLogo.src = current.logo;
     stationName.textContent = current.name;
 
-    prevLeftLogo.src = left.logo;
-    prevLeftName.textContent = left.name;
-
-    prevCenterLogo.src = center.logo;
-    prevCenterName.textContent = center.name;
-
-    prevRightLogo.src = right.logo;
-    prevRightName.textContent = right.name;
-
     stationLogo.classList.remove("flash");
-
     requestAnimationFrame(() => {
         stationLogo.classList.add("flash");
     });
 }
 
 function applyStation(index) {
-
-    currentIdx = index;
-
+    currentIdx = (index + stations.length) % stations.length;
     const station = stations[currentIdx];
 
     updateUI(currentIdx);
-
     playMenuSfx();
-
     audio.pause();
 
     if (!station.file) {
@@ -102,39 +70,20 @@ function applyStation(index) {
     }
 
     const now = Math.floor(Date.now() / 1000);
-
     audio.src = station.file;
 
     audio.onloadedmetadata = () => {
-
         try {
-
-            audio.currentTime =
-                now % station.duration;
-
+            audio.currentTime = now % station.duration;
         } catch (err) {}
-
         audio.play().catch(() => {});
     };
 
     audio.load();
 }
 
-function previewStation(index) {
-
-    if (tempIdx === index) return;
-
-    tempIdx = index;
-
-    updateUI(tempIdx);
-
-    playStatic();
-}
-
 function flashCurrentStation() {
-
     clearTimeout(hideTimeout);
-
     document.body.classList.add("holding");
 
     hideTimeout = setTimeout(() => {
@@ -143,106 +92,79 @@ function flashCurrentStation() {
 }
 
 function nextStation() {
-
-    const next =
-        (currentIdx + 1) % stations.length;
-
+    const next = (currentIdx + 1) % stations.length;
     applyStation(next);
-
     flashCurrentStation();
 }
 
 function previousStation() {
-
-    const prev =
-        (currentIdx - 1 + stations.length) %
-        stations.length;
-
+    const prev = (currentIdx - 1 + stations.length) % stations.length;
     applyStation(prev);
+    flashCurrentStation();
+}
 
+function turnRadioOff() {
+    applyStation(0);
     flashCurrentStation();
 }
 
 function pointerDown(event) {
-
-    const touch =
-        event.touches ?
-        event.touches[0] :
-        event;
-
+    const touch = event.touches ? event.touches[0] : event;
+    startX = touch.clientX;
     startY = touch.clientY;
-
     isHolding = false;
+    currentDirection = null;
 
     clearTimeout(holdTimer);
+    clearInterval(intervalTimer);
 
     holdTimer = setTimeout(() => {
-
         isHolding = true;
-
-        tempIdx = currentIdx;
-
         document.body.classList.add("holding");
 
+        if (currentDirection === "right") {
+            nextStation();
+            intervalTimer = setInterval(nextStation, 1000);
+        } else if (currentDirection === "left") {
+            previousStation();
+            intervalTimer = setInterval(previousStation, 1000);
+        } else if (currentDirection === "down") {
+            turnRadioOff();
+            intervalTimer = setInterval(turnRadioOff, 1000);
+        }
     }, 350);
 }
 
 function pointerMove(event) {
+    const touch = event.touches ? event.touches[0] : event;
+    const deltaX = touch.clientX - startX;
+    const deltaY = touch.clientY - startY;
 
-    if (!isHolding) return;
-
-    const touch =
-        event.touches ?
-        event.touches[0] :
-        event;
-
-    const deltaY =
-        touch.clientY - startY;
-
-    if (deltaY < -60) {
-
-        previewStation(
-            (tempIdx + 1) %
-            stations.length
-        );
-
-        startY = touch.clientY;
-    }
-
-    if (deltaY > 60) {
-
-        previewStation(
-            (tempIdx - 1 + stations.length) %
-            stations.length
-        );
-
-        startY = touch.clientY;
+    // Detectar dirección dominante si se mueve más de 20px
+    if (!currentDirection && (Math.abs(deltaX) > 20 || Math.abs(deltaY) > 20)) {
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            currentDirection = deltaX > 0 ? "right" : "left";
+        } else {
+            if (deltaY > 0) {
+                currentDirection = "down";
+            }
+        }
     }
 }
 
 function pointerUp() {
-
     clearTimeout(holdTimer);
+    clearInterval(intervalTimer);
 
     if (isHolding) {
-
-        document.body.classList.remove(
-            "holding"
-        );
-
-        applyStation(tempIdx);
-
+        document.body.classList.remove("holding");
         isHolding = false;
-
         tapCount = 0;
-
         return;
     }
 
     const now = Date.now();
-
-    const interval =
-        now - lastTapTime;
+    const interval = now - lastTapTime;
 
     if (interval < 300) {
         tapCount++;
@@ -255,52 +177,22 @@ function pointerUp() {
     clearTimeout(window.tapTimeout);
 
     window.tapTimeout = setTimeout(() => {
-
         if (tapCount === 2) {
-
             nextStation();
-
         } else if (tapCount === 3) {
-
             previousStation();
         }
-
         tapCount = 0;
-
     }, 300);
 }
 
-window.addEventListener(
-    "touchstart",
-    pointerDown,
-    { passive: true }
-);
+window.addEventListener("touchstart", pointerDown, { passive: true });
+window.addEventListener("touchmove", pointerMove, { passive: true });
+window.addEventListener("touchend", pointerUp);
 
-window.addEventListener(
-    "touchmove",
-    pointerMove,
-    { passive: true }
-);
-
-window.addEventListener(
-    "touchend",
-    pointerUp
-);
-
-window.addEventListener(
-    "mousedown",
-    pointerDown
-);
-
-window.addEventListener(
-    "mousemove",
-    pointerMove
-);
-
-window.addEventListener(
-    "mouseup",
-    pointerUp
-);
+window.addEventListener("mousedown", pointerDown);
+window.addEventListener("mousemove", pointerMove);
+window.addEventListener("mouseup", pointerUp);
 
 updateUI();
 applyStation(0);
