@@ -14,7 +14,7 @@ const stations = [
     { name: "Guardians of the Galaxy", logo: "img/Guardians of the Galaxy.png", file: "https://www.dropbox.com/scl/fi/g6uxuktvqu41sa8kv1k6r/Guardians-of-the-Galaxy.ogg?rlkey=wljmxuoa35ulnr62g66ccdvgg&st=ku9pq08h&raw=1", duration: 3217 },
     { name: "Futuro", logo: "img/Radio Futuro.png", file: "https://www.dropbox.com/scl/fi/4h7qq2hzlecu2noj31zw2/Radio-Futuro.ogg?rlkey=fdgp0vasf1jxtuigeb3du9xix&st=mmrukwvk&raw=1", duration: 3599 },
     { name: "FlatOut 2", logo: "img/FlatOut.png", file: "https://www.dropbox.com/scl/fi/1z5nx1yqepss72yzn8155/Flatout2.ogg?rlkey=zyknwgn4a8r0s4kymo2ttx01l&st=duu73zkt&raw=1", duration: 5261 },
-    { name: "lofi", logo: "img/Lofi.png", file: "https://www.dropbox.com/scl/fi/4uftocmw99ge7j01du0kn/Lofi.ogg?rlkey=sc9b3uiauj1sgf09up30hdxlm&st=0enl19m4&raw=1", duration: 1762 }
+    { name: "Lo-fi", logo: "img/lofi.png", file: "https://www.dropbox.com/scl/fi/4uftocmw99ge7j01du0kn/Lofi.ogg?rlkey=sc9b3uiauj1sgf09up30hdxlm&st=0enl19m4&raw=1", duration: 1762 }
 
 ];
 
