@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Neon Radio Hub</title>
     <link rel="manifest" href="manifest.json">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="style.css">
     <meta name="theme-color" content="#00ffff">
 </head>
@@ -12,26 +17,17 @@
 
 <div id="app">
 
-    <div id="station-arc">
-        <div id="prev-left" class="side-station">
-            <img id="prev-left-logo">
-            <span id="prev-left-name"></span>
-        </div>
-        <div id="prev-center" class="side-station">
-            <img id="prev-center-logo">
-            <span id="prev-center-name"></span>
-        </div>
-        <div id="prev-right" class="side-station">
-            <img id="prev-right-logo">
-            <span id="prev-right-name"></span>
-        </div>
-    </div>
-
     <div id="radio-card">
         <div id="logo-container">
             <img id="station-logo" src="img/RadioOff.png" alt="Station Logo">
         </div>
         <div id="station-name">RADIO OFF</div>
+    </div>
+
+    <div id="radio-instructions">
+        <span>🡘 cambiar</span>
+        <span>🡙 entrar</span>
+        <span>🡛 salir / apagar</span>
     </div>
 
 </div>
