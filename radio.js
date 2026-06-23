@@ -16,7 +16,7 @@ const stations = [
     { name: "FlatOut 2", logo: "img/FlatOut.png", file: "https://www.dropbox.com/scl/fi/1z5nx1yqepss72yzn8155/Flatout2.ogg?rlkey=zyknwgn4a8r0s4kymo2ttx01l&st=duu73zkt&raw=1", duration: 5261 },
     { name: "Lo-fi", logo: "img/lofi.png", file: "https://www.dropbox.com/scl/fi/4uftocmw99ge7j01du0kn/Lofi.ogg?rlkey=sc9b3uiauj1sgf09up30hdxlm&st=0enl19m4&raw=1", duration: 1762 },
     { name: "Old School", logo: "img/rege.png", file: "https://www.dropbox.com/scl/fi/d0dnc8d2nboygn9txgc1y/Reggaet-n-viejito-Dj-Ricardo-Mu-oz.ogg?rlkey=uctaxmadvh7sn2onoqtclaslu&st=2oj4sqo5&raw=1", duration: 4048 },
-    { name: "Tokyo drift", logo: "img/dri.png", file: "https://www.dropbox.com/scl/fi/oivb6ya2v1wj22flsgdlg/mix_53m02s-_audio-joiner.com_.ogg?rlkey=41ll3guiyo10gsbagxzgaf19a&st=8amiro6k&raw=1", duration: 3182 }
+    { name: "Tokyo drift", logo: "img/dri.png", file: "https://www.dropbox.com/scl/fi/oivb6ya2v1wj22flsgdlg/mix_53m02s-_audio-joiner.com_.ogg?rlkey=41ll3guiyo10gsbagxzgaf19a&st=onx9c5p&raw=1", duration: 3182 }
 
 ];
 
