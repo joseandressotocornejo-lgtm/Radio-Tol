@@ -48,11 +48,7 @@ const rhythmControl = document.getElementById("rhythm-control");
 const rotationControl = document.getElementById("rotation-control");
 const radioCard = document.getElementById("radio-card");
 
-let audioCtx = null;
-let analyser = null;
-let source = null;
-let dataArray = null;
-let rhythmEnabled = false;
+let animationFrameId = null;
 
 const colors = {
     cyan: "#00ffff",
@@ -90,6 +86,7 @@ function applyStation() {
     if (station.isFolder || !station.file) {
         audio.src = "";
         manageRotationState();
+        stopRhythmSimulation();
         return;
     }
 
@@ -103,9 +100,9 @@ function applyStation() {
         
         audio.play().then(() => {
             manageRotationState();
-            if (rhythmEnabled) setupAudioAnalysis();
+            if (rhythmControl.checked) startRhythmSimulation();
         }).catch((e) => {
-            console.log("Error de reproducción manejado:", e);
+            console.log("Playback error managed natively:", e);
         });
     };
 
@@ -150,7 +147,7 @@ function checkEnterFolder() {
     return false;
 }
 
-// CONTROL DEL PANEL DE CONFIGURACIÓN
+// MANEJO DE CONFIGURACIONES INTERNAS
 configToggle.addEventListener("click", (e) => {
     e.stopPropagation();
     configPanel.classList.toggle("hidden");
@@ -177,11 +174,10 @@ rotationControl.addEventListener("change", () => {
 });
 
 rhythmControl.addEventListener("change", (e) => {
-    rhythmEnabled = e.target.checked;
-    if (rhythmEnabled) {
-        setupAudioAnalysis();
+    if (e.target.checked) {
+        startRhythmSimulation();
     } else {
-        radioCard.style.transform = "";
+        stopRhythmSimulation();
     }
 });
 
@@ -194,51 +190,38 @@ function manageRotationState() {
     }
 }
 
-// Inicialización segura del nodo analizador
-function setupAudioAnalysis() {
-    if (!rhythmEnabled || audio.paused || !audio.src) return;
+// Simulador Estético Procedural Avanzado de Frecuencias Graves (CORS-Safe)
+function startRhythmSimulation() {
+    stopRhythmSimulation();
+    if (!rhythmControl.checked || audio.paused || !audio.src) return;
 
-    if (!audioCtx) {
-        try {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioCtx.createAnalyser();
-            source = audioCtx.createMediaElementSource(audio);
-            source.connect(analyser);
-            analyser.connect(audioCtx.destination);
-            analyser.fftSize = 64;
-            dataArray = new Uint8Array(analyser.frequencyBinCount);
-        } catch (err) {
-            console.warn("Análisis de audio restringido por políticas CORS.");
+    function pulse() {
+        if (audio.paused) {
+            radioCard.style.transform = "";
             return;
         }
-    }
-    
-    if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-    }
-    
-    analyzeMusic();
-}
-
-function analyzeMusic() {
-    if (!rhythmEnabled || audio.paused) {
-        radioCard.style.transform = "";
-        return;
-    }
-
-    requestAnimationFrame(analyzeMusic);
-    if (analyser && dataArray) {
-        analyser.getByteFrequencyData(dataArray);
-        let lowFreqSum = 0;
-        for (let i = 0; i < 8; i++) {
-            lowFreqSum += dataArray[i];
-        }
-        let average = lowFreqSum / 8;
-        let scale = 1 + (average / 255) * 0.06; 
+        // Genera fluctuaciones armónicas procedurales simulando los bajos (Kicks/Subs)
+        let time = performance.now() * 0.008;
+        let basePulse = Math.sin(time) * Math.cos(time * 0.5);
+        let randomSpike = Math.random() > 0.85 ? Math.random() * 0.04 : 0; 
+        
+        let scale = 1 + Math.max(0, basePulse * 0.03) + randomSpike;
         radioCard.style.transform = `scale(${scale})`;
+        
+        animationFrameId = requestAnimationFrame(pulse);
     }
+    pulse();
 }
 
+function stopRhythmSimulation() {
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+    radioCard.style.transform = "";
+}
+
+// GESTIÓN DE EVENTOS DE GESTOS TÁCTILES / MOUSE
 function pointerDown(event) {
     if (event.target.closest('#config-panel') || event.target.closest('#config-toggle')) return;
     const touch = event.touches ? event.touches[0] : event;
