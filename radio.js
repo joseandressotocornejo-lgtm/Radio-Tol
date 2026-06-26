@@ -54,10 +54,11 @@ const colors = {
     cyan: "#00ffff",
     magenta: "#ff00ff",
     green: "#00ff80",
-    yellow: "#ffff00"
+    yellow: "#ffff00",
+    red: "#ff0000"
 };
 
-const colorArray = ["#00ffff", "#ff00ff", "#00ff80", "#ffff00"];
+const colorArray = ["#00ffff", "#ff00ff", "#00ff80", "#ffff00", "#ff0000"];
 
 function playMenuSfx() {
     menuSfx.currentTime = 0;
@@ -70,7 +71,6 @@ function updateUI() {
     stationLogo.src = current.logo;
     stationName.textContent = current.name;
 
-    // Controlar si la imagen de Radio Off debe ser estática y cuadrada
     if (current.name === "Radio Off") {
         stationLogo.classList.add("is-radio-off");
     } else {
@@ -117,6 +117,7 @@ function applyStation() {
     audio.load();
 }
 
+// Lógica de navegación y gestos permanece idéntica...
 function nextStation() {
     if (subIdx === -1) {
         currentIdx = (currentIdx + 1) % stations.length;
@@ -155,7 +156,6 @@ function checkEnterFolder() {
     return false;
 }
 
-// CONFIGURACIONES
 configToggle.addEventListener("click", (e) => {
     e.stopPropagation();
     configPanel.classList.toggle("hidden");
@@ -193,7 +193,6 @@ function manageRotationState() {
     let isPlaying = !audio.paused && audio.src !== "";
     let current = (subIdx === -1) ? stations[currentIdx] : stations[currentIdx].subStations[subIdx];
 
-    // NUNCA rotar la carátula si la estación es Radio Off
     if (rotationControl.checked && isPlaying && current.name !== "Radio Off") {
         stationLogo.classList.add("rotating");
     } else {
@@ -201,7 +200,6 @@ function manageRotationState() {
     }
 }
 
-// Ritmo Procedural con Cambio Dinámico de Color Multicolor
 function startPulseEffect() {
     stopPulseEffect();
     if (!rhythmControl.checked || audio.paused || !audio.src) return;
@@ -217,7 +215,6 @@ function startPulseEffect() {
         let pulseWave = Math.sin(time) * Math.cos(time * 0.4);
         let scaleFactor = 1 + Math.max(0, pulseWave * 0.025);
         
-        // Ciclo procedural multicolor basado en el tiempo
         let colorIdx = Math.floor((time * 0.25) % colorArray.length);
         let dynamicColor = colorArray[colorIdx];
 
@@ -240,7 +237,6 @@ function stopPulseEffect() {
     radioCard.style.boxShadow = "0 0 18px var(--cyan)";
 }
 
-// GESTOS TÁCTILES
 function pointerDown(event) {
     if (event.target.closest('#config-panel') || event.target.closest('#config-toggle')) return;
     const touch = event.touches ? event.touches[0] : event;
