@@ -48,7 +48,7 @@ const rhythmControl = document.getElementById("rhythm-control");
 const rotationControl = document.getElementById("rotation-control");
 const radioCard = document.getElementById("radio-card");
 
-let animationFrameId = null;
+let pulseFrameId = null;
 
 const colors = {
     cyan: "#00ffff",
@@ -86,7 +86,6 @@ function applyStation() {
     if (station.isFolder || !station.file) {
         audio.src = "";
         manageRotationState();
-        stopRhythmSimulation();
         return;
     }
 
@@ -100,9 +99,9 @@ function applyStation() {
         
         audio.play().then(() => {
             manageRotationState();
-            if (rhythmControl.checked) startRhythmSimulation();
+            if (rhythmControl.checked) startPulseEffect();
         }).catch((e) => {
-            console.log("Playback error managed natively:", e);
+            console.log("Audio reproducible nativamente:", e);
         });
     };
 
@@ -147,7 +146,7 @@ function checkEnterFolder() {
     return false;
 }
 
-// MANEJO DE CONFIGURACIONES INTERNAS
+// MANEJO DE CONFIGURACIONES
 configToggle.addEventListener("click", (e) => {
     e.stopPropagation();
     configPanel.classList.toggle("hidden");
@@ -175,14 +174,15 @@ rotationControl.addEventListener("change", () => {
 
 rhythmControl.addEventListener("change", (e) => {
     if (e.target.checked) {
-        startRhythmSimulation();
+        startPulseEffect();
     } else {
-        stopRhythmSimulation();
+        stopPulseEffect();
     }
 });
 
 function manageRotationState() {
     let isPlaying = !audio.paused && audio.src !== "";
+    // Aseguramos la adición/remoción de la clase de rotación en el elemento de la carátula
     if (rotationControl.checked && isPlaying) {
         stationLogo.classList.add("rotating");
     } else {
@@ -190,38 +190,35 @@ function manageRotationState() {
     }
 }
 
-// Simulador Estético Procedural Avanzado de Frecuencias Graves (CORS-Safe)
-function startRhythmSimulation() {
-    stopRhythmSimulation();
+// Efecto procedural independiente de parpadeo neón (Sin problemas de red/CORS)
+function startPulseEffect() {
+    stopPulseEffect();
     if (!rhythmControl.checked || audio.paused || !audio.src) return;
 
-    function pulse() {
+    function animatePulse() {
         if (audio.paused) {
             radioCard.style.transform = "";
             return;
         }
-        // Genera fluctuaciones armónicas procedurales simulando los bajos (Kicks/Subs)
-        let time = performance.now() * 0.008;
-        let basePulse = Math.sin(time) * Math.cos(time * 0.5);
-        let randomSpike = Math.random() > 0.85 ? Math.random() * 0.04 : 0; 
+        let time = performance.now() * 0.007;
+        let pulseWave = Math.sin(time) * Math.cos(time * 0.4);
+        let scaleFactor = 1 + Math.max(0, pulseWave * 0.025);
         
-        let scale = 1 + Math.max(0, basePulse * 0.03) + randomSpike;
-        radioCard.style.transform = `scale(${scale})`;
-        
-        animationFrameId = requestAnimationFrame(pulse);
+        radioCard.style.transform = `scale(${scaleFactor})`;
+        pulseFrameId = requestAnimationFrame(animatePulse);
     }
-    pulse();
+    animatePulse();
 }
 
-function stopRhythmSimulation() {
-    if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
+function stopPulseEffect() {
+    if (pulseFrameId) {
+        cancelAnimationFrame(pulseFrameId);
+        pulseFrameId = null;
     }
     radioCard.style.transform = "";
 }
 
-// GESTIÓN DE EVENTOS DE GESTOS TÁCTILES / MOUSE
+// LÓGICA DE GESTOS
 function pointerDown(event) {
     if (event.target.closest('#config-panel') || event.target.closest('#config-toggle')) return;
     const touch = event.touches ? event.touches[0] : event;
